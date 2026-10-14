@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import date
 
 from . import messages, risk, store
+from . import llm
 from .llm import http
 
 MODEL = os.environ.get("SHELFMITRA_AGENT_MODEL", "openai/gpt-oss-120b")
@@ -117,13 +119,23 @@ def run_tool(name: str, args: dict) -> dict:
 
 
 def llm_step(history: list[dict]) -> dict:
-    """One model call. Returns the assistant message (with tool_calls or final content)."""
-    r = http().post("https://api.groq.com/openai/v1/chat/completions",
-                   headers={"Authorization": f"Bearer {os.environ['GROQ_API_KEY']}"},
-                   json={"model": MODEL, "messages": history, "tools": TOOLS, "temperature": 0.2, "max_tokens": 4000,
-                         "reasoning_effort": "low"})
+    """One model call. Returns the assistant message (with tool_calls or final content).
+
+    Hosted: gpt-oss-120b on Groq. Local: the same OpenAI-style call to Ollama on this machine.
+    """
+    if llm.BACKEND == "local":
+        url, headers = f"{llm.OLLAMA}/v1/chat/completions", {}
+        body = {"model": llm.LOCAL_TEXT, "messages": history, "tools": TOOLS, "temperature": 0.2}
+    else:
+        url, headers = "https://api.groq.com/openai/v1/chat/completions", {"Authorization": f"Bearer {os.environ['GROQ_API_KEY']}"}
+        body = {"model": MODEL, "messages": history, "tools": TOOLS, "temperature": 0.2, "max_tokens": 4000,
+                "reasoning_effort": "low"}
+    r = http().post(url, headers=headers, json=body, timeout=llm.LOCAL_TIMEOUT if llm.BACKEND == "local" else 120)
     r.raise_for_status()
-    return r.json()["choices"][0]["message"]
+    msg = r.json()["choices"][0]["message"]
+    if msg.get("content"):
+        msg["content"] = re.sub(r"<think>.*?</think>", "", msg["content"], flags=re.S).strip()
+    return msg
 
 
 HINGLISH = {"kya", "karun", "karu", "hai", "hain", "kitna", "kitne", "aur", "ke", "ki", "mein", "nahi", "chahiye", "kaun", "lautana", "bhejna", "dawa"}

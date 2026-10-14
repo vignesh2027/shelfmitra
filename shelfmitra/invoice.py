@@ -16,11 +16,11 @@ from .llm import chat, parse_json
 
 PROMPT = """You are reading a photo of an Indian pharmaceutical distributor's tax invoice.
 Copy the item table exactly as printed. Do not guess or correct anything; if a cell is unreadable, use null.
-Return JSON only, in this shape:
-{"distributor": "...", "invoice_no": "...", "invoice_date": "DD/MM/YYYY",
- "return_policy": "any printed note about expiry returns, or null",
- "items": [{"product": "...", "pack": "...", "batch": "...", "expiry": "MM/YY as printed",
-            "qty": number, "free": number, "mrp": number, "rate": number, "amount": number}]}"""
+Return JSON only, with these keys:
+- distributor, invoice_no, invoice_date: text copied from the invoice header
+- return_policy: the printed sentence about expiry returns, copied word for word, or null if there is none
+- items: one object per table row with product, pack, batch, expiry (only the printed month/year, like 03/27),
+  qty, free, mrp, rate, amount (numbers)"""
 
 BATCH_RE = re.compile(r"^[A-Z0-9][A-Z0-9\-/]{2,14}$")
 

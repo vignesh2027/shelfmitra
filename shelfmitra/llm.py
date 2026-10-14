@@ -22,6 +22,7 @@ HOSTED_VISION = os.environ.get("SHELFMITRA_HOSTED_VISION", "qwen/qwen3.8-27b")
 LOCAL_TEXT = os.environ.get("SHELFMITRA_LOCAL_TEXT", "qwen3:4b")
 LOCAL_VISION = os.environ.get("SHELFMITRA_LOCAL_VISION", "qwen2.5vl:3b")
 OLLAMA = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
+LOCAL_TIMEOUT = float(os.environ.get("SHELFMITRA_LOCAL_TIMEOUT", "600"))  # small CPUs, cold model loads
 
 class TruncatedOutput(RuntimeError):
     """The model stopped mid-answer; never use a cut-off reply."""
@@ -51,7 +52,7 @@ def chat(prompt: str, *, image: bytes | None = None, mime: str = "image/jpeg", s
                 "stream": False, "options": {"temperature": 0.2}}
         if json_mode:
             body["format"] = "json"
-        r = _client.post(f"{OLLAMA}/api/chat", json=body)
+        r = _client.post(f"{OLLAMA}/api/chat", json=body, timeout=LOCAL_TIMEOUT)
         r.raise_for_status()
         return r.json()["message"]["content"]
 
