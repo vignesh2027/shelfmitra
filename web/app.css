@@ -115,9 +115,15 @@ table.shelf { width: 100%; border-collapse: collapse; min-width: 860px; }
   h1 { font-size: 30px; }
   .shop, .badges { display: none; }
 }
-@media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } }
+@media (max-width: 520px) {
+  .kpis { grid-template-columns: 1fr; }
+  .top-in { gap: 8px; }
+  .brand span { font-size: 18px; }
+  .lang button { padding: 6px 7px; }
+}
 
 .acct { display: flex; gap: 8px; align-items: center; }
+.acct .btn, .demo-actions .btn { white-space: nowrap; }
 .acct .who { font-weight: 600; font-size: 13.5px; }
 .demo-bar { background: linear-gradient(90deg, #0E7C6B, #13A88F); color: #fff; }
 .demo-in { display: flex; gap: 14px; align-items: center; justify-content: space-between; padding-top: 9px; padding-bottom: 9px; font-size: 14px; flex-wrap: wrap; }

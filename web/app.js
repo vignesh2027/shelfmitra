@@ -8,7 +8,7 @@ const T = {
     hero_lede: "ShelfMitra reads your distributor invoices, predicts which medicines will still be on the shelf when the return window closes, and reminds you in time to send them back.",
     k_rupees: "Money at risk", k_rupees_sub: "stock likely unsold by the return cutoff",
     k_return: "Return now", k_return_sub: "batches inside their last 45 days", k_watch: "Batches watched",
-    ask_title: "Ask ShelfMitra", ask_hint: "Tamil, Hindi or English", ask_btn: "Ask", ask_ph: "Which medicines should I return this week?",
+    ask_title: "Ask ShelfMitra", ask_hint: "Tamil, Hindi or English", chat_empty: "Ask about expiry, returns or how much to reorder.", ask_btn: "Ask", ask_ph: "Which medicines should I return this week?",
     inv_title: "Add a distributor invoice", inv_drop: "Drop a photo of the invoice",
     inv_drop_sub: "or tap to take one. Batch, expiry and quantity are read for you, and every line is checked.",
     inv_sample: "Try a sample invoice", shelf_title: "Your shelf, by money at risk", msg_btn: "Message distributor",
@@ -28,7 +28,7 @@ const T = {
     hero_lede: "விநியோகஸ்தர் பில்லை ShelfMitra படிக்கிறது, திருப்பி அனுப்பும் காலம் முடியும்போது எந்த மருந்துகள் விற்காமல் இருக்கும் என்று கணிக்கிறது, நேரத்தில் உங்களுக்கு நினைவூட்டுகிறது.",
     k_rupees: "ஆபத்தில் உள்ள பணம்", k_rupees_sub: "திருப்பும் கடைசி நாளுக்குள் விற்காத சரக்கு",
     k_return: "இப்போதே திருப்புங்கள்", k_return_sub: "கடைசி 45 நாட்களில் உள்ள பேட்ச்கள்", k_watch: "கண்காணிப்பில் பேட்ச்கள்",
-    ask_title: "ShelfMitra-விடம் கேளுங்கள்", ask_hint: "தமிழ், இந்தி அல்லது ஆங்கிலம்", ask_btn: "கேள்", ask_ph: "இந்த வாரம் எதை திருப்பி அனுப்பணும்?",
+    ask_title: "ShelfMitra-விடம் கேளுங்கள்", ask_hint: "தமிழ், இந்தி அல்லது ஆங்கிலம்", chat_empty: "காலாவதி, திருப்பி அனுப்புதல் அல்லது எவ்வளவு ஆர்டர் செய்வது என்று கேளுங்கள்.", ask_btn: "கேள்", ask_ph: "இந்த வாரம் எதை திருப்பி அனுப்பணும்?",
     inv_title: "விநியோகஸ்தர் பில் சேர்க்கவும்", inv_drop: "பில்லின் புகைப்படத்தை இங்கே விடுங்கள்",
     inv_drop_sub: "அல்லது தொட்டு புகைப்படம் எடுங்கள். பேட்ச், காலாவதி, அளவு தானாகப் படிக்கப்பட்டு ஒவ்வொரு வரியும் சரிபார்க்கப்படும்.",
     inv_sample: "மாதிரி பில்லை முயற்சிக்கவும்", shelf_title: "உங்கள் அலமாரி, ஆபத்துத் தொகைப்படி", msg_btn: "விநியோகஸ்தருக்கு செய்தி",
@@ -48,7 +48,7 @@ const T = {
     hero_lede: "ShelfMitra आपके डिस्ट्रीब्यूटर बिल पढ़ता है, अनुमान लगाता है कि रिटर्न की समय-सीमा खत्म होने तक कौन सी दवाएँ बिना बिके रह जाएँगी, और समय पर याद दिलाता है।",
     k_rupees: "जोखिम में पैसा", k_rupees_sub: "रिटर्न की आखिरी तारीख तक न बिकने वाला स्टॉक",
     k_return: "अभी लौटाएँ", k_return_sub: "आखिरी 45 दिनों वाले बैच", k_watch: "निगरानी में बैच",
-    ask_title: "ShelfMitra से पूछिए", ask_hint: "तमिल, हिंदी या अंग्रेज़ी", ask_btn: "पूछें", ask_ph: "इस हफ्ते कौन सी दवाएँ लौटानी हैं?",
+    ask_title: "ShelfMitra से पूछिए", ask_hint: "तमिल, हिंदी या अंग्रेज़ी", chat_empty: "एक्सपायरी, वापसी या कितना ऑर्डर करें, यह पूछिए।", ask_btn: "पूछें", ask_ph: "इस हफ्ते कौन सी दवाएँ लौटानी हैं?",
     inv_title: "डिस्ट्रीब्यूटर का बिल जोड़ें", inv_drop: "बिल की फ़ोटो यहाँ डालें",
     inv_drop_sub: "या टैप करके फ़ोटो लें। बैच, एक्सपायरी और मात्रा अपने आप पढ़ी जाती है, और हर लाइन जाँची जाती है।",
     inv_sample: "नमूना बिल आज़माएँ", shelf_title: "आपकी शेल्फ, जोखिम वाली रकम के क्रम में", msg_btn: "डिस्ट्रीब्यूटर को मैसेज",
@@ -168,7 +168,7 @@ async function ask(q) {
   try {
     const r = await api("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q }) });
     const tools = r.trace.map((x) => `<span class="tool">${esc(x.tool)}</span>`).join("");
-    wait.innerHTML = esc(r.answer) + (tools ? `<div class="tools">${tools}</div>` : "");
+    wait.innerHTML = esc(r.answer).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/^\s*\|?[-| :]+\|\s*$/gm, "") + (tools ? `<div class="tools">${tools}</div>` : "");
   } catch (e) { wait.textContent = "Sorry, that did not work: " + e.message.slice(0, 160); }
 }
 $("#ask-form").onsubmit = (e) => { e.preventDefault(); const q = $("#ask-input").value; $("#ask-input").value = ""; ask(q); };
@@ -216,7 +216,7 @@ async function loadMe() {
   me = await api("/api/me");
   const t = T[lang];
   $("#acct").innerHTML = me.demo
-    ? `<button class="btn small ghost" data-open="login">${t.login}</button><button class="btn small primary" data-open="signup">${t.create_shop}</button>`
+    ? `<button class="btn small ghost" data-open="login">${t.login}</button>`
     : `<span class="who">${esc(me.name)}</span><button class="btn small ghost" id="logout">${t.logout}</button>`;
   $("#logout")?.addEventListener("click", async () => { await api("/api/auth/logout", { method: "POST" }); location.reload(); });
 }
@@ -255,7 +255,7 @@ $("#sales-file").onchange = async (e) => {
 };
 
 document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => { lang = b.dataset.lang; localStorage.setItem("sm-lang", lang); applyLang(); loadMe(); }));
-$("#chat").innerHTML = `<div class="empty-chat">Ask about expiry, returns or how much to reorder.</div>`;
+$("#chat").innerHTML = `<div class="empty-chat" data-t="chat_empty">Ask about expiry, returns or how much to reorder.</div>`;
 applyLang();
 loadMe();
 load();

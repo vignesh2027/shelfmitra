@@ -22,13 +22,18 @@ avoid losses from medicines that expire on the shelf. Today is {today}.
 Rules:
 - Answer in the same language the owner used (Tamil, Hindi or English). Keep it short and practical.
 - Every number you mention (quantities, rupees, risk, dates) must come from a tool result. Never estimate.
-- Use expiry_risk to judge stock already on the shelf.
+- Use expiry_risk to judge stock already on the shelf. Its what_to_do field is the shop's decision; repeat it, do not
+  invent your own thresholds.
 - Whenever the owner asks whether to order, buy or restock a quantity, you MUST call what_if_order with that
-  product and quantity, and base the advice on its risk. If its risk is 0.3 or more, suggest a smaller quantity
+  product and quantity, and base the advice on its risk. If its risk is 30% or more, suggest a smaller quantity
   and check that smaller quantity with what_if_order too.
+  Then give both: the risk for the quantity they asked about, and the smaller quantity with its risk.
 - Use return_message when the owner wants to ask the distributor to collect stock.
 - Risk is a probability that more than 10% of the batch is still unsold at the distributor's return cutoff.
-- Never suggest discounting prescription medicines or selling them without a prescription."""
+- Never suggest discounting prescription medicines or selling them without a prescription.
+- Write plain text for a phone screen: short sentences, a numbered line per medicine if there are several,
+  no markdown, no tables, no asterisks. Show risk as a percent and dates exactly as the tools give them.
+  Never show field names or codes from the tools."""
 
 TOOLS = [
     {"type": "function", "function": {
@@ -55,28 +60,53 @@ def _scored(product: str | None = None):
     return risk.score(bs, hist)
 
 
+ACTIONS = {
+    "en": {"return_now": "return it now", "stop_reorder": "stop reordering it", "watch": "watch it",
+           "ok": "fine, nothing to do", "need_sales": "not enough sales data yet", "window_closed": "return window already closed"},
+    "ta": {"return_now": "இப்போதே திருப்பி அனுப்புங்கள்", "stop_reorder": "மீண்டும் ஆர்டர் செய்ய வேண்டாம்", "watch": "கவனித்து வாருங்கள்",
+           "ok": "சரியாக உள்ளது", "need_sales": "விற்பனை தரவு போதவில்லை", "window_closed": "திருப்பும் காலம் முடிந்தது"},
+    "hi": {"return_now": "अभी लौटाइए", "stop_reorder": "दोबारा ऑर्डर मत कीजिए", "watch": "नज़र रखिए",
+           "ok": "ठीक है, कुछ नहीं करना", "need_sales": "बिक्री का डेटा अभी कम है", "window_closed": "वापसी की अवधि खत्म हो गई"},
+}
+_LANG = "en"
+
+
+def _dmy(iso: str) -> str:
+    y, m, d = iso.split("-")
+    return f"{d}/{m}/{y}"
+
+
+def _human(b: dict) -> dict:
+    """Tool output in the words and units the owner uses, so the model has nothing to convert."""
+    return {"product": b["product"], "batch": b["batch"], "on_hand": b["qty_on_hand"], "return_by": _dmy(b["return_cutoff"]),
+            "days_left_to_return": b["days_to_cutoff"], "risk_percent": round(b["risk"] * 100),
+            "units_likely_unsold": round(float(b["expected_left"]), 1), "rupees_at_risk": round(b["rupees_at_risk"]),
+            "what_to_do": ACTIONS[_LANG].get(b["action"], b["action"])}
+
+
 def run_tool(name: str, args: dict) -> dict:
     if name == "stock":
         rows = _scored(args.get("product"))
-        return {"batches": [{k: b[k] for k in ("product", "batch", "expiry", "return_cutoff", "qty_on_hand", "distributor")} for b in rows]}
+        return {"batches": [{"product": b["product"], "batch": b["batch"], "expiry": _dmy(b["expiry"]), "return_by": _dmy(b["return_cutoff"]),
+                             "on_hand": b["qty_on_hand"], "distributor": b["distributor"]} for b in rows]}
     if name == "expiry_risk":
         rows = _scored(args.get("product"))
-        return {"engine": risk.engine(), "batches": [
-            {k: b[k] for k in ("product", "batch", "qty_on_hand", "return_cutoff", "days_to_cutoff", "risk", "expected_left", "rupees_at_risk", "action")}
-            for b in rows]}
+        return {"batches": [_human(b) for b in rows]}
     if name == "what_if_order":
         with store.db() as con:
             ref = next((b for b in store.batches(con, status=None) if args["product"].lower() in b["product"].lower()), None)
             if ref is None:
                 return {"error": f"no sales history for {args['product']}"}
             hist = store.sales_history(con, ref["product"], date.today().isoformat())
+            # Older stock of the same product sells first, so the new batch only clears after it does.
+            on_shelf = sum(b["qty_on_hand"] for b in store.batches(con) if b["product"] == ref["product"])
         from datetime import timedelta
         months = int(args.get("months_to_expiry") or 18)
-        hypo = {**ref, "id": 0, "qty_on_hand": int(args["qty"]),
+        hypo = {**ref, "id": 0, "qty_on_hand": int(args["qty"]) + on_shelf,
                 "expiry": (date.today() + timedelta(days=30 * months)).isoformat()}
         s = risk.score([hypo], {ref["product"]: hist})[0]
-        return {"product": ref["product"], "qty": int(args["qty"]), "risk": s["risk"], "expected_left": s["expected_left"],
-                "sales_per_day_last_30": s["vel30"], "return_cutoff": s["return_cutoff"], "engine": s["engine"]}
+        return {"product": ref["product"], "qty": int(args["qty"]), "already_on_shelf": on_shelf, "risk_percent": round(s["risk"] * 100),
+                "units_likely_unsold": round(float(s["expected_left"]), 1), "sales_per_day_last_30": round(float(s["vel30"]), 2), "return_by": _dmy(s["return_cutoff"])}
     if name == "return_message":
         rows = [b for b in _scored() if b["action"] == "return_now"]
         if not rows:
@@ -129,8 +159,10 @@ def ask(question: str, shop: str = "demo", shop_name: str = "Lakshmi Medicals") 
 
 
 def _ask(question: str, shop_name: str) -> dict:
-    global _SHOP_NAME
+    global _SHOP_NAME, _LANG
     _SHOP_NAME = shop_name
+    rl = reply_language(question)
+    _LANG = "ta" if rl.startswith("Tamil (") else "hi" if rl.startswith("Hindi (") else "en"
     history, trace = start(question), []
     for _ in range(MAX_STEPS):
         msg = llm_step(history)
