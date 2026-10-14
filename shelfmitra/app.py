@@ -28,6 +28,8 @@ DAY_SECONDS = float(os.environ.get("SHELFMITRA_DAY_SECONDS", "86400"))
 DEMO_NAME = os.environ.get("SHELFMITRA_SHOP", "Lakshmi Medicals")
 PUBLIC_DEMO = os.environ.get("SHELFMITRA_PUBLIC_DEMO") == "1"
 SECURE_COOKIE = os.environ.get("SHELFMITRA_SECURE_COOKIE", "1" if PUBLIC_DEMO else "0") == "1"
+# "none" lets the session work inside the Hugging Face Spaces iframe (needs a secure cookie).
+SAMESITE = os.environ.get("SHELFMITRA_COOKIE_SAMESITE", "lax")
 
 app = FastAPI(title="ShelfMitra", docs_url=None, redoc_url=None)
 _temporal = None
@@ -93,7 +95,7 @@ class LogIn(BaseModel):
 
 def _set_session(resp: Response, shop_id: str):
     resp.set_cookie(auth.COOKIE, auth.make_token(shop_id), max_age=auth.MAX_AGE, httponly=True,
-                    samesite="lax", secure=SECURE_COOKIE)
+                    samesite=SAMESITE, secure=SECURE_COOKIE or SAMESITE == "none")
 
 
 @app.post("/api/auth/signup")
@@ -120,7 +122,7 @@ def login(l: LogIn, request: Request, response: Response):
 
 @app.post("/api/auth/logout")
 def logout(response: Response):
-    response.delete_cookie(auth.COOKIE)
+    response.delete_cookie(auth.COOKIE, samesite=SAMESITE, secure=SECURE_COOKIE or SAMESITE == "none", httponly=True)
     return {"ok": True}
 
 

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShelfMitra · Sell it before it expires</title>
+<meta name="description" content="ShelfMitra catches medicines that will expire unsold while the distributor will still take them back. For Indian medical shops, in Tamil, Hindi and English. Open-weight models, TabPFN-3.5 and Temporal.">
+<meta property="og:title" content="ShelfMitra · Sell it before it expires">
+<meta property="og:description" content="Expiry rescue for Indian medical shops, in Tamil, Hindi and English.">
+<meta property="og:image" content="https://vignesh2027.github.io/shelfmitra/screens/01_dashboard.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=Noto+Sans+Tamil:wght@500;600&family=Noto+Sans+Devanagari:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F1E8;--card:#FFFDF9;--ink:#0F1F2A;--ink2:#3C4A57;--muted:#6B7480;--line:#E7DFD1;--teal:#0E7C6B;--teal2:#14A38B;--gold:#E9A23B;--goldbg:#FFF2DC;--red:#C2410C;--shadow:0 1px 2px rgba(15,31,42,.04),0 8px 30px rgba(15,31,42,.06)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,"Noto Sans Tamil","Noto Sans Devanagari",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--teal)}img,video{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:5;background:rgba(246,241,232,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:18px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font:800 21px Manrope;color:var(--ink);text-decoration:none}.brand b{color:var(--teal)}
+.nav .links{margin-left:auto;display:flex;gap:22px;align-items:center}
+.nav .links a{color:var(--ink2);text-decoration:none;font-weight:500;font-size:15px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font:600 15px Inter;text-decoration:none;border:1.5px solid transparent;transition:transform .15s,box-shadow .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn.p{background:var(--teal);color:#fff}.btn.g{background:var(--card);color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:8px 14px;font-size:14px}
+header.hero{padding:72px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:13.5px;color:var(--ink2);font-weight:500}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--teal2)}
+h1{font:800 clamp(40px,5.6vw,64px)/1.04 Manrope;letter-spacing:-.02em;margin:18px 0 18px}
+h1 em{font-style:normal;color:var(--teal)}
+.lede{font-size:19px;color:var(--ink2);max-width:540px;margin:0 0 28px}
+.ctas{display:flex;gap:12px;flex-wrap:wrap}
+.langs{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;align-items:center}
+.langs span{background:var(--card);border:1px solid var(--line);padding:4px 12px;border-radius:99px;color:var(--ink2);font-weight:600}
+.hero-shot{border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(15,31,42,.25);border:1px solid var(--line);background:var(--card)}
+section{padding:64px 0}
+h2{font:800 clamp(28px,3.4vw,40px)/1.15 Manrope;letter-spacing:-.015em;margin:0 0 14px}
+.kicker{font:700 13px Inter;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.sub{color:var(--ink2);font-size:18px;max-width:720px;margin:0 0 34px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.problem{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.quote{padding:30px;font-size:18px}
+.quote .inv{font-family:ui-monospace,Menlo,monospace;background:var(--goldbg);border:1px dashed #E6C58A;padding:14px 16px;border-radius:12px;font-size:15px;color:#7A4A00;margin:14px 0}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat div{padding:22px}.stat b{display:block;font:800 34px Manrope;color:var(--ink)}.stat small{color:var(--muted);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step{padding:26px}.step .n{width:36px;height:36px;border-radius:10px;background:#E3F2EE;color:var(--teal);font:800 17px Manrope;display:grid;place-items:center;margin-bottom:14px}
+.step h3{font:700 19px Manrope;margin:0 0 8px}.step p{margin:0;color:var(--ink2);font-size:15.5px}
+.step .tag{display:inline-block;margin-top:14px;font:600 12px Inter;padding:4px 10px;border-radius:99px;background:#E3F2EE;color:var(--teal)}
+.step .tag.c{background:var(--goldbg);color:#9A5B00}.step .tag.t{background:#ECEAFB;color:#4338CA}
+.video{padding:14px}.video video{border-radius:14px;width:100%}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.gallery figure{margin:0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.gallery img{border-radius:10px;aspect-ratio:4/3;object-fit:cover;object-position:top;width:100%;cursor:zoom-in}
+.gallery figcaption{font-size:14px;color:var(--ink2);padding:10px 4px 2px}
+.gallery figcaption b{color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.pad{padding:24px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}th{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr.hl td{font-weight:700;color:var(--teal)}
+.note{font-size:14.5px;color:var(--ink2);margin-top:14px}
+.price{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.plan{padding:32px}.plan .amt{font:800 46px Manrope}.plan .amt small{font:500 16px Inter;color:var(--muted)}
+.plan ul{padding-left:18px;color:var(--ink2)}.plan.feat{border:2px solid var(--teal)}
+.badge{display:inline-block;background:var(--teal);color:#fff;font:600 12px Inter;padding:4px 10px;border-radius:99px;margin-bottom:10px}
+.econ td:last-child{text-align:right}
+.links{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.lk{padding:20px;text-decoration:none;color:var(--ink);display:block;transition:transform .15s}.lk:hover{transform:translateY(-2px)}
+.lk b{display:block;font:700 17px Manrope;margin-bottom:4px}.lk span{color:var(--muted);font-size:14px}
+footer{padding:40px 0 60px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);margin-top:30px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+dialog{border:0;padding:0;background:transparent;max-width:min(1400px,96vw)}dialog::backdrop{background:rgba(15,31,42,.7)}
+dialog img{border-radius:12px;max-height:92vh;width:auto}
+@media (max-width:900px){
+ .hero-grid,.problem,.two,.price{grid-template-columns:1fr}
+ .steps,.gallery{grid-template-columns:1fr 1fr}.links{grid-template-columns:1fr 1fr}
+ .nav .links a:not(.btn){display:none}
+ header.hero{padding:40px 0 20px}
+}
+@media (max-width:560px){.steps,.gallery,.links,.stat{grid-template-columns:1fr}section{padding:44px 0}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav">
+  <a class="brand" href="#"><img src="logo.svg" width="32" height="32" alt=""><span>Shelf<b>Mitra</b></span></a>
+  <div class="links">
+    <a href="#how">How it works</a><a href="#proof">Proof</a><a href="#pricing">Pricing</a>
+    <a class="btn p sm" href="https://github.com/vignesh2027/shelfmitra">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <span class="eyebrow"><i></i>For Indian medical shops · open models</span>
+    <h1>Sell it <em>before</em> it expires.</h1>
+    <p class="lede">ShelfMitra reads your distributor invoices, predicts which medicines will still be on the shelf when the return window closes, and reminds you in time to send them back.</p>
+    <div class="ctas">
+      <a class="btn p" id="live" href="https://github.com/vignesh2027/shelfmitra#run-it">Try the live demo</a>
+      <a class="btn g" href="#demo">Watch the 60 s demo</a>
+      <a class="btn g" href="https://github.com/vignesh2027/shelfmitra">Source on GitHub</a>
+    </div>
+    <div class="langs">Ask in <span>English</span><span>தமிழ்</span><span>हिंदी</span><span>Tanglish</span><span>Hinglish</span></div>
+  </div>
+  <div class="hero-shot"><img src="screens/01_dashboard.png" alt="ShelfMitra dashboard showing ₹2,082 at risk across 12 batches"></div>
+</div></header>
+
+<section id="problem"><div class="wrap problem">
+  <div>
+    <div class="kicker">The problem</div>
+    <h2>The return window closes quietly.</h2>
+    <p class="sub">Distributors take expiring stock back, but only until a cutoff. Miss it by a week and the strip goes in the bin. Nobody has time to check 2,000 expiry dates against how fast each medicine sells.</p>
+    <div class="stat">
+      <div class="card"><b>90</b><small>days before expiry: a typical return cutoff</small></div>
+      <div class="card"><b>5</b><small>checks per batch before its cutoff; reminders only when at risk</small></div>
+      <div class="card"><b>₹0.05</b><small>model cost per question or less, on open models</small></div>
+    </div>
+  </div>
+  <div class="card quote">
+    Printed at the bottom of a distributor invoice:
+    <div class="inv">Expiry returns accepted up to 90 days before expiry against original invoice. E.&amp;O.E.</div>
+    ShelfMitra reads that line, works out the cutoff for every batch on the invoice, and starts watching each one the moment it is added.
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="kicker">How it works</div>
+  <h2>The model reads. Code decides.</h2>
+  <p class="sub">Open models transcribe and talk. Plain code checks every number, picks the action and fills in every figure you see.</p>
+  <div class="steps">
+    <div class="card step"><div class="n">1</div><h3>Photograph the invoice</h3><p>Qwen, an open-weight vision model, copies the table. Code checks batch format, MM/YY expiry, qty × rate = amount. Doubtful lines go to you, never guessed.</p><span class="tag">open model</span> <span class="tag c">code checks</span></div>
+    <div class="card step"><div class="n">2</div><h3>See what will not sell</h3><p>TabPFN-3.5 predicts which batches will still be on the shelf at the cutoff. The shelf is sorted by rupees at risk, not by date.</p><span class="tag">TabPFN-3.5</span></div>
+    <div class="card step"><div class="n">3</div><h3>Get reminded in time</h3><p>A durable Temporal workflow per batch wakes at 60, 30, 14, 7 and 2 days before the cutoff. It survives restarts and crashes.</p><span class="tag t">Temporal</span></div>
+    <div class="card step"><div class="n">4</div><h3>Send it back in one tap</h3><p>A WhatsApp return request to the distributor in Tamil, Hindi or English. The model writes the words once; code fills every batch, qty and date.</p><span class="tag">open model</span> <span class="tag c">code fills numbers</span></div>
+    <div class="card step"><div class="n">5</div><h3>Ask before you order</h3><p>"Should I order 100 more Brufen?" The agent runs TabPFN on that order, counting stock already on your shelf, and suggests a safer quantity.</p><span class="tag">gpt-oss-120b</span> <span class="tag">TabPFN-3.5</span></div>
+    <div class="card step"><div class="n">6</div><h3>Your data stays yours</h3><p>One private database per shop. Run everything on the shop PC with Ollama by changing one setting. TabPFN already runs on CPU.</p><span class="tag c">private by design</span></div>
+  </div>
+</div></section>
+
+<section id="demo"><div class="wrap">
+  <div class="kicker">Demo</div>
+  <h2>One minute, start to finish.</h2>
+  <p class="sub">Read a real-looking invoice, ask about an order, switch to Tamil, and send the return request.</p>
+  <div class="card video"><video src="media/shelfmitra-demo.mp4" controls muted playsinline preload="metadata" poster="screens/01_dashboard.png"></video></div>
+  <div class="gallery" style="margin-top:22px">
+    <figure><img src="screens/03_shelf.png" alt="Shelf sorted by money at risk" loading="lazy"><figcaption><b>Shelf by money at risk.</b> Return-by dates and an action for every batch.</figcaption></figure>
+    <figure><img src="screens/09_invoice_read.png" alt="Invoice read and checked" loading="lazy"><figcaption><b>Invoice in 3.4 s.</b> All 8 lines read and checked; brands matched to ingredients.</figcaption></figure>
+    <figure><img src="screens/07_ask_order.png" alt="Order advice" loading="lazy"><figcaption><b>Order advice.</b> Two TabPFN what-ifs before it answers.</figcaption></figure>
+    <figure><img src="screens/04_tamil.png" alt="Tamil interface" loading="lazy"><figcaption><b>முழுக்க தமிழில்.</b> The whole app, in Tamil.</figcaption></figure>
+    <figure><img src="screens/06_ask_tamil.png" alt="Agent answering in Tamil" loading="lazy"><figcaption><b>Ask in Tamil.</b> Answers in Tamil, numbers from code.</figcaption></figure>
+    <figure><img src="screens/10_message_tamil.png" alt="Return request in Tamil" loading="lazy"><figcaption><b>Return request.</b> Ready for WhatsApp, in the distributor's language.</figcaption></figure>
+    <figure><img src="screens/05_hindi.png" alt="Hindi interface" loading="lazy"><figcaption><b>पूरा हिंदी में.</b> And in Hindi.</figcaption></figure>
+    <figure><img src="screens/12_mobile.png" alt="Mobile" loading="lazy"><figcaption><b>Works on the counter phone.</b></figcaption></figure>
+    <figure><img src="screens/11_signup.png" alt="Sign up" loading="lazy"><figcaption><b>Your own shop, free.</b> Private database per shop.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="proof"><div class="wrap">
+  <div class="kicker">Proof</div>
+  <h2>Measured, not promised.</h2>
+  <p class="sub">A benchmark on six years of real pharmacy sales, and a crash test on the reminders.</p>
+  <div class="two">
+    <div class="card pad">
+      <img src="screens/15_eval_chart.png" alt="ROC-AUC by training size: TabPFN-3.5 reaches 0.949 at 500 batches; rule 0.903" loading="lazy">
+      <table style="margin-top:14px">
+        <tr><th>Method (500 batches)</th><th class="n">ROC-AUC</th><th class="n">F1</th></tr>
+        <tr><td>Straight-line rule</td><td class="n">0.903</td><td class="n">0.849</td></tr>
+        <tr><td>Logistic regression</td><td class="n">0.908</td><td class="n">0.863</td></tr>
+        <tr><td>Gradient boosting</td><td class="n">0.922</td><td class="n">0.858</td></tr>
+        <tr class="hl"><td>TabPFN-3.5</td><td class="n">0.949</td><td class="n">0.882</td></tr>
+      </table>
+      <p class="note">Train 2014 to 2017, test 2018 to 2019, five seeds. The simple rule is strong; it is ShelfMitra's fallback when TabPFN is unavailable. Data: <a href="https://www.kaggle.com/datasets/milanzdravkovic/pharma-sales-data">Pharma sales data</a> (CC BY-NC 4.0).</p>
+    </div>
+    <div>
+      <div class="card pad"><img src="screens/17_crash_terminal.png" alt="Crash demo: worker killed with SIGKILL, all checkpoints still ran" loading="lazy">
+      <p class="note">The worker is killed with <code>SIGKILL</code> mid-watch. A fresh worker picks up the overdue checkpoint and all five still run.</p></div>
+      <div class="card pad" style="margin-top:24px"><img src="screens/18_temporal_ui_watch.png" alt="Temporal UI: a durable timer sleeping 11 months 19 days" loading="lazy">
+      <p class="note">A real watch: one durable timer sleeping 11 months and 19 days until the Dolo 650 batch's first checkpoint.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <div class="kicker">Pricing</div>
+  <h2>Pays for itself with one saved box.</h2>
+  <div class="price">
+    <div class="card plan feat"><span class="badge">Beta</span><div class="amt">Free <small>while in beta</small></div><p>Then ₹299 a month per shop.</p>
+      <ul><li>Unlimited batches and invoices</li><li>Reminders for every batch until its cutoff</li><li>Tamil, Hindi and English</li><li>Your own private database</li></ul>
+      <a class="btn p" href="https://github.com/vignesh2027/shelfmitra#run-it">Start free</a></div>
+    <div class="card plan"><h3 style="font:700 20px Manrope;margin:0 0 12px">Why it can be this cheap</h3>
+      <table class="econ">
+        <tr><th>Per shop, per month</th><th>Cost</th></tr>
+        <tr><td>30 invoice photos on Qwen vision ($0.0055 each)</td><td>$0.17</td></tr>
+        <tr><td>100 questions on gpt-oss-120b ($0.0005 each)</td><td>$0.05</td></tr>
+        <tr><td>Risk scoring with TabPFN-3.5 on CPU</td><td>$0</td></tr>
+        <tr><td><b>Model cost</b></td><td><b>about ₹20</b></td></tr>
+      </table>
+      <p class="note">Measured token counts at Groq's listed prices. Open weights mean the same models can run on the shop's own PC instead.</p></div>
+  </div>
+</div></section>
+
+<section id="links"><div class="wrap">
+  <div class="kicker">Links</div>
+  <h2>Everything in one place.</h2>
+  <div class="links" style="margin-top:24px">
+    <a class="card lk" href="https://github.com/vignesh2027/shelfmitra"><b>GitHub</b><span>Source, tests, eval, MIT</span></a>
+    <a class="card lk" id="live2" href="https://github.com/vignesh2027/shelfmitra#run-it"><b>Live app</b><span>Demo shop, no signup</span></a>
+    <a class="card lk" href="https://github.com/vignesh2027/shelfmitra/blob/master/eval/results.md"><b>Eval results</b><span>Every method and size</span></a>
+    <a class="card lk" href="https://github.com/vignesh2027/shelfmitra/blob/master/scripts/crash_demo.py"><b>Crash demo</b><span>Kill the worker yourself</span></a>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>ShelfMitra · MIT · Built by <a href="https://github.com/vignesh2027">Vignesh</a> in Chennai</span>
+  <span>Risk is a prediction, not a guarantee. Always check the physical stock before returning it.</span>
+</div></footer>
+
+<dialog id="zoom"><img alt=""></dialog>
+<script>
+const z = document.getElementById("zoom");
+document.querySelectorAll(".gallery img, .pad img").forEach((i) => i.addEventListener("click", () => { z.querySelector("img").src = i.src; z.showModal(); }));
+z.addEventListener("click", () => z.close());
+</script>
+</body>
+</html>
