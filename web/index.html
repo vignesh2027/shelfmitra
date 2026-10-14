@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShelfMitra · Sell it before it expires</title>
+<meta name="description" content="ShelfMitra helps Indian medical shops catch medicines that will expire unsold, while the distributor will still take them back. Open-weight models, TabPFN and Temporal.">
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/"><img src="/static/logo.svg" alt="" width="34" height="34"><span>Shelf<b>Mitra</b></span></a>
+    <div class="shop" id="shop">Lakshmi Medicals</div>
+    <div class="spacer"></div>
+    <div class="badges" id="badges"></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="en" class="on">EN</button><button data-lang="ta">தமிழ்</button><button data-lang="hi">हिंदी</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1 data-t="hero_title">Sell it before it expires.</h1>
+      <p class="lede" data-t="hero_lede">ShelfMitra reads your distributor invoices, predicts which medicines will still be on the shelf when the return window closes, and reminds you in time to send them back.</p>
+    </div>
+    <div class="kpis">
+      <div class="kpi warn"><span data-t="k_rupees">Money at risk</span><b id="k-rupees">₹0</b><small data-t="k_rupees_sub">stock likely unsold by the return cutoff</small></div>
+      <div class="kpi"><span data-t="k_return">Return now</span><b id="k-return">0</b><small data-t="k_return_sub">batches inside their last 45 days</small></div>
+      <div class="kpi"><span data-t="k_watch">Batches watched</span><b id="k-batches">0</b><small id="k-engine"></small></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card ask">
+      <div class="card-h"><h2 data-t="ask_title">Ask ShelfMitra</h2><span class="hint" data-t="ask_hint">Tamil, Hindi or English</span></div>
+      <div id="chat" class="chat"></div>
+      <div class="chips" id="examples"></div>
+      <form id="ask-form" class="ask-row">
+        <input id="ask-input" autocomplete="off" placeholder="Which medicines should I return this week?" data-tp="ask_ph">
+        <button class="btn primary" type="submit" data-t="ask_btn">Ask</button>
+      </form>
+    </div>
+
+    <div class="card upload">
+      <div class="card-h"><h2 data-t="inv_title">Add a distributor invoice</h2></div>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="image/*" hidden>
+        <img src="/static/logo.svg" alt="" width="40">
+        <b data-t="inv_drop">Drop a photo of the invoice</b>
+        <span data-t="inv_drop_sub">or tap to take one. Batch, expiry and quantity are read for you, and every line is checked.</span>
+      </label>
+      <button class="btn ghost small" id="sample" data-t="inv_sample">Try a sample invoice</button>
+      <div id="inv-result"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h">
+      <h2 data-t="shelf_title">Your shelf, by money at risk</h2>
+      <div class="card-actions">
+        <select id="msg-lang"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिंदी</option></select>
+        <button class="btn primary" id="msg-btn" data-t="msg_btn">Message distributor</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="shelf">
+      <thead><tr><th></th><th data-t="c_product">Medicine</th><th data-t="c_expiry">Expiry</th><th data-t="c_cutoff">Return by</th><th class="num" data-t="c_qty">On hand</th><th data-t="c_risk">Risk</th><th class="num" data-t="c_rupees">₹ at risk</th><th data-t="c_action">What to do</th><th></th></tr></thead>
+      <tbody id="rows"><tr><td colspan="9" class="muted">Loading…</td></tr></tbody>
+    </table></div>
+    <div id="msg-out"></div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <div class="card-h"><h2 data-t="wf_title">Watching every batch</h2><span class="hint">Temporal</span></div>
+      <div id="workflows" class="wf"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2 data-t="log_title">What happened</h2></div>
+      <ul id="events" class="events"></ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>ShelfMitra · <a href="https://github.com/vignesh2027/shelfmitra">Source on GitHub</a> · MIT</span>
+    <span data-t="foot_note">Risk is a prediction, not a guarantee. Always check the physical stock before returning it.</span>
+  </footer>
+</main>
+
+<template id="tpl-row"><tr>
+  <td><input type="checkbox" class="pick"></td>
+  <td><b class="p"></b><small class="b"></small></td>
+  <td class="exp"></td><td class="cut"></td><td class="num qty"></td>
+  <td><div class="bar"><i></i></div><small class="rp"></small></td>
+  <td class="num rs"></td><td><span class="chip act"></span></td>
+  <td class="dec"><button data-d="returned">Returned</button><button data-d="sold">Sold</button></td>
+</tr></template>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

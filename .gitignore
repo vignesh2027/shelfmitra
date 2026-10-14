@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/shop.db
+data/temporal.db*
+data/templates.json
+logs/
+logs_app.txt
+.pytest_cache/

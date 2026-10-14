@@ -1,0 +1,122 @@
+{
+  "test_size": 1200,
+  "test_at_risk_rate": 0.541,
+  "rows": [
+    {
+      "method": "Straight-line rule",
+      "n": 0,
+      "auc": 0.903,
+      "f1": 0.849,
+      "rescued": 0.794,
+      "fit_s": 0.0
+    },
+    {
+      "method": "Logistic regression",
+      "n": 50,
+      "auc": 0.871,
+      "auc_sd": 0.029,
+      "f1": 0.825,
+      "rescued": 0.794,
+      "fit_s": 0.01
+    },
+    {
+      "method": "Logistic regression",
+      "n": 100,
+      "auc": 0.88,
+      "auc_sd": 0.015,
+      "f1": 0.833,
+      "rescued": 0.79,
+      "fit_s": 0.0
+    },
+    {
+      "method": "Logistic regression",
+      "n": 200,
+      "auc": 0.897,
+      "auc_sd": 0.005,
+      "f1": 0.855,
+      "rescued": 0.804,
+      "fit_s": 0.0
+    },
+    {
+      "method": "Logistic regression",
+      "n": 500,
+      "auc": 0.908,
+      "auc_sd": 0.004,
+      "f1": 0.863,
+      "rescued": 0.81,
+      "fit_s": 0.0
+    },
+    {
+      "method": "Gradient boosting",
+      "n": 50,
+      "auc": 0.871,
+      "auc_sd": 0.02,
+      "f1": 0.833,
+      "rescued": 0.795,
+      "fit_s": 0.17
+    },
+    {
+      "method": "Gradient boosting",
+      "n": 100,
+      "auc": 0.867,
+      "auc_sd": 0.01,
+      "f1": 0.815,
+      "rescued": 0.79,
+      "fit_s": 0.47
+    },
+    {
+      "method": "Gradient boosting",
+      "n": 200,
+      "auc": 0.881,
+      "auc_sd": 0.016,
+      "f1": 0.818,
+      "rescued": 0.794,
+      "fit_s": 1.34
+    },
+    {
+      "method": "Gradient boosting",
+      "n": 500,
+      "auc": 0.922,
+      "auc_sd": 0.004,
+      "f1": 0.858,
+      "rescued": 0.799,
+      "fit_s": 2.96
+    },
+    {
+      "method": "TabPFN",
+      "n": 50,
+      "auc": 0.895,
+      "auc_sd": 0.019,
+      "f1": 0.833,
+      "rescued": 0.797,
+      "fit_s": 49.46
+    },
+    {
+      "method": "TabPFN",
+      "n": 100,
+      "auc": 0.909,
+      "auc_sd": 0.004,
+      "f1": 0.849,
+      "rescued": 0.806,
+      "fit_s": 13.25
+    },
+    {
+      "method": "TabPFN",
+      "n": 200,
+      "auc": 0.92,
+      "auc_sd": 0.005,
+      "f1": 0.858,
+      "rescued": 0.81,
+      "fit_s": 11.61
+    },
+    {
+      "method": "TabPFN",
+      "n": 500,
+      "auc": 0.949,
+      "auc_sd": 0.006,
+      "f1": 0.882,
+      "rescued": 0.816,
+      "fit_s": 12.96
+    }
+  ]
+}
