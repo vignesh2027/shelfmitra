@@ -30,19 +30,28 @@ class WatchInput:
     batch_id: int
     days_to_cutoff: int
     day_seconds: float = 86400.0
+    shop: str = "demo"
 
 
 @dataclass
 class Checkpoint:
     batch_id: int
     days_left: int
+    shop: str = "demo"
+
+
+@dataclass
+class BatchRef:
+    batch_id: int
+    shop: str = "demo"
+    decision: str = ""
 
 
 # ---------------------------------------------------------------- activities
 @activity.defn
 async def score_batch(cp: Checkpoint) -> dict:
     from . import risk, store
-    with store.db() as con:
+    with store.db(cp.shop) as con:
         b = con.execute("SELECT * FROM batches WHERE id = ?", (cp.batch_id,)).fetchone()
         if b is None or b["status"] != "active":
             return {"action": "closed", "risk": 0.0}
@@ -56,7 +65,7 @@ async def score_batch(cp: Checkpoint) -> dict:
 @activity.defn
 async def remind_owner(cp: Checkpoint) -> None:
     from . import notify, store
-    with store.db() as con:
+    with store.db(cp.shop) as con:
         b = dict(con.execute("SELECT * FROM batches WHERE id = ?", (cp.batch_id,)).fetchone())
         store.log(con, "reminder", cp.batch_id, days_left=cp.days_left)
     notify.send(f"{b['product']} batch {b['batch']}: {b['qty_on_hand']} on hand, "
@@ -64,19 +73,19 @@ async def remind_owner(cp: Checkpoint) -> None:
 
 
 @activity.defn
-async def close_window(batch_id: int) -> None:
+async def close_window(ref: BatchRef) -> None:
     from . import store
-    with store.db() as con:
-        left = con.execute("SELECT qty_on_hand FROM batches WHERE id = ?", (batch_id,)).fetchone()
-        store.log(con, "window_closed", batch_id, still_on_hand=left[0] if left else 0)
+    with store.db(ref.shop) as con:
+        left = con.execute("SELECT qty_on_hand FROM batches WHERE id = ?", (ref.batch_id,)).fetchone()
+        store.log(con, "window_closed", ref.batch_id, still_on_hand=left[0] if left else 0)
 
 
 @activity.defn
-async def record_decision(batch_id: int, decision: str) -> None:
+async def record_decision(ref: BatchRef) -> None:
     from . import store
-    with store.db() as con:
-        con.execute("UPDATE batches SET status = ? WHERE id = ?", (decision, batch_id))
-        store.log(con, "decision", batch_id, decision=decision)
+    with store.db(ref.shop) as con:
+        con.execute("UPDATE batches SET status = ? WHERE id = ?", (ref.decision, ref.batch_id))
+        store.log(con, "decision", ref.batch_id, decision=ref.decision)
 
 
 # ---------------------------------------------------------------- workflow
@@ -121,15 +130,15 @@ class BatchWatch:
                 break
             elapsed += wait_days
             self.stage = f"checking at {cp} days left"
-            result = await workflow.execute_activity(score_batch, Checkpoint(inp.batch_id, cp), **opts)
+            result = await workflow.execute_activity(score_batch, Checkpoint(inp.batch_id, cp, inp.shop), **opts)
             self.last_risk = result["risk"]
             if result["action"] == "closed":
                 return "closed"
             if result["action"] in ("return_now", "stop_reorder"):
                 self.stage = f"reminded at {cp} days left"
-                await workflow.execute_activity(remind_owner, Checkpoint(inp.batch_id, cp), **opts)
+                await workflow.execute_activity(remind_owner, Checkpoint(inp.batch_id, cp, inp.shop), **opts)
         if self.decision:
-            await workflow.execute_activity(record_decision, args=[inp.batch_id, self.decision], **opts)
+            await workflow.execute_activity(record_decision, BatchRef(inp.batch_id, inp.shop, self.decision), **opts)
             self.stage = f"done: {self.decision}"
             return self.decision
         remaining = inp.days_to_cutoff - elapsed
@@ -137,9 +146,9 @@ class BatchWatch:
             self.stage = "waiting for the cutoff"
             await self._wait(day * remaining)
         if self.decision:
-            await workflow.execute_activity(record_decision, args=[inp.batch_id, self.decision], **opts)
+            await workflow.execute_activity(record_decision, BatchRef(inp.batch_id, inp.shop, self.decision), **opts)
             self.stage = f"done: {self.decision}"
             return self.decision
-        await workflow.execute_activity(close_window, inp.batch_id, **opts)
+        await workflow.execute_activity(close_window, BatchRef(inp.batch_id, inp.shop), **opts)
         self.stage = "return window closed"
         return "window_closed"

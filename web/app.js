@@ -1,5 +1,9 @@
 const T = {
   en: {
+    demo_note: "You are exploring the demo shop: Lakshmi Medicals, Mylapore, Chennai. Everything here is live.",
+    create_shop: "Create your shop, free", reset_demo: "Reset demo", login: "Log in", logout: "Log out",
+    sales_import: "Import sales (CSV)", sales_template: "CSV template", f_shop: "Shop name", f_area: "Area / city", f_pw: "Password",
+    a_need_sales: "Add sales data",
     hero_title: "Sell it before it expires.",
     hero_lede: "ShelfMitra reads your distributor invoices, predicts which medicines will still be on the shelf when the return window closes, and reminds you in time to send them back.",
     k_rupees: "Money at risk", k_rupees_sub: "stock likely unsold by the return cutoff",
@@ -16,6 +20,10 @@ const T = {
     examples: ["Which medicines should I return this week?", "Should I order 40 more Allegra 120?", "How much money is at risk?"],
   },
   ta: {
+    demo_note: "நீங்கள் மாதிரி கடையைப் பார்க்கிறீர்கள்: லக்ஷ்மி மெடிக்கல்ஸ், மயிலாப்பூர், சென்னை. இங்குள்ள அனைத்தும் நேரலை.",
+    create_shop: "உங்கள் கடையை இலவசமாக உருவாக்குங்கள்", reset_demo: "மாதிரியை மீட்டமை", login: "உள்நுழை", logout: "வெளியேறு",
+    sales_import: "விற்பனை CSV சேர்க்க", sales_template: "CSV மாதிரி", f_shop: "கடையின் பெயர்", f_area: "பகுதி / நகரம்", f_pw: "கடவுச்சொல்",
+    a_need_sales: "விற்பனை தரவு தேவை",
     hero_title: "காலாவதிக்கு முன் விற்றுவிடுங்கள்.",
     hero_lede: "விநியோகஸ்தர் பில்லை ShelfMitra படிக்கிறது, திருப்பி அனுப்பும் காலம் முடியும்போது எந்த மருந்துகள் விற்காமல் இருக்கும் என்று கணிக்கிறது, நேரத்தில் உங்களுக்கு நினைவூட்டுகிறது.",
     k_rupees: "ஆபத்தில் உள்ள பணம்", k_rupees_sub: "திருப்பும் கடைசி நாளுக்குள் விற்காத சரக்கு",
@@ -32,6 +40,10 @@ const T = {
     examples: ["இந்த வாரம் எதை திருப்பி அனுப்பணும்?", "Allegra 120 இன்னும் 40 ஆர்டர் செய்யலாமா?", "எவ்வளவு பணம் ஆபத்தில் உள்ளது?"],
   },
   hi: {
+    demo_note: "आप डेमो दुकान देख रहे हैं: लक्ष्मी मेडिकल्स, मायलापुर, चेन्नई। यहाँ सब कुछ लाइव है।",
+    create_shop: "अपनी दुकान मुफ़्त बनाएँ", reset_demo: "डेमो रीसेट करें", login: "लॉग इन", logout: "लॉग आउट",
+    sales_import: "बिक्री CSV जोड़ें", sales_template: "CSV नमूना", f_shop: "दुकान का नाम", f_area: "इलाका / शहर", f_pw: "पासवर्ड",
+    a_need_sales: "बिक्री डेटा जोड़ें",
     hero_title: "एक्सपायरी से पहले बेच दीजिए।",
     hero_lede: "ShelfMitra आपके डिस्ट्रीब्यूटर बिल पढ़ता है, अनुमान लगाता है कि रिटर्न की समय-सीमा खत्म होने तक कौन सी दवाएँ बिना बिके रह जाएँगी, और समय पर याद दिलाता है।",
     k_rupees: "जोखिम में पैसा", k_rupees_sub: "रिटर्न की आखिरी तारीख तक न बिकने वाला स्टॉक",
@@ -76,6 +88,7 @@ async function api(path, opts = {}) {
 function render() {
   const t = T[lang];
   $("#shop").textContent = data.shop;
+  $("#demo-bar").hidden = !data.demo;
   $("#k-rupees").textContent = rupees(data.totals.rupees_at_risk);
   $("#k-return").textContent = data.totals.return_now;
   $("#k-batches").textContent = data.totals.batches;
@@ -90,6 +103,7 @@ function render() {
     tr.dataset.id = b.id;
     tr.querySelector(".p").textContent = b.product;
     tr.querySelector(".b").textContent = `Batch ${b.batch} · ${b.distributor || ""}`;
+    if (b.composition) { const c = document.createElement("small"); c.className = "comp"; c.textContent = b.composition; tr.querySelector(".b").after(c); }
     tr.querySelector(".exp").textContent = fmtDate(b.expiry);
     const cut = tr.querySelector(".cut");
     cut.innerHTML = `${fmtDate(b.return_cutoff)}<span class="days">${b.days_to_cutoff} ${t.days_left}</span>`;
@@ -98,7 +112,7 @@ function render() {
     const bar = tr.querySelector(".bar");
     bar.querySelector("i").style.width = Math.round(b.risk * 100) + "%";
     bar.classList.add(b.risk >= 0.6 ? "hot" : b.risk >= 0.3 ? "mid" : "low");
-    tr.querySelector(".rp").textContent = Math.round(b.risk * 100) + "%";
+    tr.querySelector(".rp").textContent = b.no_sales ? "–" : Math.round(b.risk * 100) + "%";
     tr.querySelector(".rs").textContent = b.rupees_at_risk ? rupees(b.rupees_at_risk) : "–";
     const act = tr.querySelector(".act");
     act.textContent = t["a_" + b.action] || b.action;
@@ -196,8 +210,53 @@ $("#msg-btn").onclick = async () => {
   $("#msg-out").innerHTML = `<div class="out"><pre>${esc(r.text)}</pre><a class="btn primary" href="${r.whatsapp}" target="_blank" rel="noopener">Open in WhatsApp</a></div>`;
 };
 
-document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => { lang = b.dataset.lang; localStorage.setItem("sm-lang", lang); applyLang(); }));
+// Accounts
+let me = null, authMode = "signup";
+async function loadMe() {
+  me = await api("/api/me");
+  const t = T[lang];
+  $("#acct").innerHTML = me.demo
+    ? `<button class="btn small ghost" data-open="login">${t.login}</button><button class="btn small primary" data-open="signup">${t.create_shop}</button>`
+    : `<span class="who">${esc(me.name)}</span><button class="btn small ghost" id="logout">${t.logout}</button>`;
+  $("#logout")?.addEventListener("click", async () => { await api("/api/auth/logout", { method: "POST" }); location.reload(); });
+}
+function openAuth(mode) {
+  authMode = mode;
+  const signup = mode === "signup";
+  $("#auth-title").textContent = signup ? "Create your shop" : "Log in to your shop";
+  $("#auth-sub").textContent = signup ? "Free while in beta. Your stock data stays in its own private database." : "Welcome back.";
+  $("#f-shop").hidden = $("#f-area").hidden = !signup;
+  $("#auth-go").textContent = signup ? "Create shop" : "Log in";
+  $("#auth-switch").textContent = signup ? "Already have an account? Log in" : "New here? Create your shop";
+  $("#auth-err").textContent = "";
+  $("#auth-dlg").showModal();
+}
+document.addEventListener("click", (e) => { const m = e.target.closest("[data-open]"); if (m) { e.preventDefault(); openAuth(m.dataset.open); } });
+$("#auth-switch").onclick = (e) => { e.preventDefault(); openAuth(authMode === "signup" ? "login" : "signup"); };
+$("#auth-form").addEventListener("submit", async (e) => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const body = authMode === "signup" ? { email: f.email, password: f.password, shop_name: f.shop_name || "", area: f.area || "" } : { email: f.email, password: f.password };
+  try {
+    await api(`/api/auth/${authMode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    location.reload();
+  } catch (err) {
+    let msg = err.message; try { msg = JSON.parse(msg).detail || msg; } catch (_) {}
+    $("#auth-err").textContent = typeof msg === "string" ? msg : "Please check the form.";
+  }
+});
+$("#reset-demo").onclick = async () => { await api("/api/demo/reset", { method: "POST" }).catch(() => {}); load(); };
+$("#sales-file").onchange = async (e) => {
+  const fd = new FormData(); fd.append("file", e.target.files[0]);
+  const out = $("#inv-result");
+  try { const r = await api("/api/sales", { method: "POST", body: fd }); out.innerHTML = `<div class="inv-box okk">Imported ${r.rows} sales rows.</div>`; load(); }
+  catch (err) { out.innerHTML = `<div class="inv-box flag">${esc(err.message.slice(0, 200))}</div>`; }
+};
+
+document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => { lang = b.dataset.lang; localStorage.setItem("sm-lang", lang); applyLang(); loadMe(); }));
 $("#chat").innerHTML = `<div class="empty-chat">Ask about expiry, returns or how much to reorder.</div>`;
 applyLang();
+loadMe();
 load();
 setInterval(load, 15000);

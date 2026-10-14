@@ -15,6 +15,7 @@ from .llm import http
 
 MODEL = os.environ.get("SHELFMITRA_AGENT_MODEL", "openai/gpt-oss-120b")
 MAX_STEPS = 6
+_SHOP_NAME = "Lakshmi Medicals"
 
 SYSTEM = """You are ShelfMitra, an assistant for a small medical shop in India. You help the owner
 avoid losses from medicines that expire on the shelf. Today is {today}.
@@ -81,7 +82,7 @@ def run_tool(name: str, args: dict) -> dict:
         if not rows:
             return {"message": None, "note": "no batch needs returning right now"}
         return {"message": messages.return_request(args.get("lang") or "en", rows[0]["distributor"] or "Sir",
-                                                   os.environ.get("SHELFMITRA_SHOP", "Lakshmi Medicals"), rows)}
+                                                   _SHOP_NAME, rows)}
     return {"error": f"unknown tool {name}"}
 
 
@@ -118,8 +119,18 @@ def start(question: str) -> list[dict]:
             {"role": "user", "content": f"{question}\n\n(Reply in {reply_language(question)}.)"}]
 
 
-def ask(question: str) -> dict:
-    """Run the agent loop directly (the Temporal version is AskShelfMitra in workflows.py)."""
+def ask(question: str, shop: str = "demo", shop_name: str = "Lakshmi Medicals") -> dict:
+    """Run the agent loop for one shop. Tools only ever see that shop's database."""
+    token = store.current_shop.set(shop)
+    try:
+        return _ask(question, shop_name)
+    finally:
+        store.current_shop.reset(token)
+
+
+def _ask(question: str, shop_name: str) -> dict:
+    global _SHOP_NAME
+    _SHOP_NAME = shop_name
     history, trace = start(question), []
     for _ in range(MAX_STEPS):
         msg = llm_step(history)

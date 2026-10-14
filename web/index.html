@@ -17,11 +17,20 @@
     <div class="shop" id="shop">Lakshmi Medicals</div>
     <div class="spacer"></div>
     <div class="badges" id="badges"></div>
+    <div class="acct" id="acct"></div>
     <div class="lang" role="group" aria-label="Language">
       <button data-lang="en" class="on">EN</button><button data-lang="ta">தமிழ்</button><button data-lang="hi">हिंदी</button>
     </div>
   </div>
 </header>
+
+<div class="demo-bar" id="demo-bar" hidden>
+  <div class="wrap demo-in">
+    <span data-t="demo_note">You are exploring the demo shop: Lakshmi Medicals, Mylapore, Chennai. Everything here is live.</span>
+    <span class="demo-actions"><button class="btn small primary" data-open="signup" data-t="create_shop">Create your shop, free</button>
+    <button class="btn small ghost" id="reset-demo" data-t="reset_demo">Reset demo</button></span>
+  </div>
+</div>
 
 <main class="wrap">
   <section class="hero">
@@ -55,7 +64,11 @@
         <b data-t="inv_drop">Drop a photo of the invoice</b>
         <span data-t="inv_drop_sub">or tap to take one. Batch, expiry and quantity are read for you, and every line is checked.</span>
       </label>
-      <button class="btn ghost small" id="sample" data-t="inv_sample">Try a sample invoice</button>
+      <div class="row-btns">
+        <button class="btn ghost small" id="sample" data-t="inv_sample">Try a sample invoice</button>
+        <label class="btn ghost small"><input type="file" id="sales-file" accept=".csv,text/csv" hidden><span data-t="sales_import">Import sales (CSV)</span></label>
+        <a class="small-link" href="/static/sales_template.csv" download data-t="sales_template">CSV template</a>
+      </div>
       <div id="inv-result"></div>
     </div>
   </section>
@@ -100,6 +113,22 @@
   <td class="num rs"></td><td><span class="chip act"></span></td>
   <td class="dec"><button data-d="returned">Returned</button><button data-d="sold">Sold</button></td>
 </tr></template>
+
+<dialog id="auth-dlg" class="dlg">
+  <form method="dialog" id="auth-form">
+    <img src="/static/logo.svg" alt="" width="40">
+    <h2 id="auth-title">Create your shop</h2>
+    <p class="muted" id="auth-sub">Free while in beta. Your stock data stays in its own private database.</p>
+    <label class="f" id="f-shop"><span data-t="f_shop">Shop name</span><input name="shop_name" autocomplete="organization"></label>
+    <label class="f" id="f-area"><span data-t="f_area">Area / city</span><input name="area" placeholder="Mylapore, Chennai"></label>
+    <label class="f"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+    <label class="f"><span data-t="f_pw">Password</span><input name="password" type="password" minlength="8" autocomplete="current-password" required></label>
+    <div class="err" id="auth-err"></div>
+    <button class="btn primary wide" id="auth-go" value="go">Create shop</button>
+    <p class="switch"><a href="#" id="auth-switch">Already have an account? Log in</a></p>
+    <button class="x" value="cancel" formnovalidate aria-label="Close">×</button>
+  </form>
+</dialog>
 
 <script src="/static/app.js"></script>
 </body>

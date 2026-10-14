@@ -116,3 +116,27 @@ table.shelf { width: 100%; border-collapse: collapse; min-width: 860px; }
   .shop, .badges { display: none; }
 }
 @media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } }
+
+.acct { display: flex; gap: 8px; align-items: center; }
+.acct .who { font-weight: 600; font-size: 13.5px; }
+.demo-bar { background: linear-gradient(90deg, #0E7C6B, #13A88F); color: #fff; }
+.demo-in { display: flex; gap: 14px; align-items: center; justify-content: space-between; padding-top: 9px; padding-bottom: 9px; font-size: 14px; flex-wrap: wrap; }
+.demo-actions { display: flex; gap: 8px; }
+.demo-bar .btn.primary { background: #fff; color: var(--teal); border-color: #fff; }
+.demo-bar .btn.ghost { color: #fff; border-color: rgba(255,255,255,.5); }
+.row-btns { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.row-btns label.btn { cursor: pointer; }
+.small-link { font-size: 12.5px; }
+.chip.need_sales { background: #EEF0F2; color: var(--ink2); }
+.shelf small.comp { display: block; color: var(--teal); font-size: 11.5px; }
+.dlg { border: 0; border-radius: 20px; padding: 0; width: min(420px, 92vw); box-shadow: 0 30px 80px rgba(11,31,42,.25); background: var(--card); }
+.dlg::backdrop { background: rgba(11,31,42,.45); backdrop-filter: blur(3px); }
+.dlg form { padding: 28px 28px 22px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.dlg h2 { font: 800 22px Manrope, sans-serif; margin: 4px 0 0; }
+.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--ink2); }
+.f input { font: 15px Inter, sans-serif; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+.f input:focus { outline: 2px solid var(--teal-2); border-color: transparent; }
+.err { color: var(--red); font-size: 13px; min-height: 18px; }
+.btn.wide { width: 100%; padding: 12px; }
+.switch { text-align: center; font-size: 13.5px; margin: 4px 0 0; }
+.x { position: absolute; top: 10px; right: 12px; border: 0; background: none; font-size: 24px; color: var(--muted); cursor: pointer; }

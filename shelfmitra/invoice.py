@@ -11,6 +11,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from datetime import date
 
+from .catalog import lookup
 from .llm import chat, parse_json
 
 PROMPT = """You are reading a photo of an Indian pharmaceutical distributor's tax invoice.
@@ -35,6 +36,8 @@ class Line:
     mrp: float | None
     rate: float | None
     amount: float | None
+    composition: str | None = None
+    category: str | None = None
     issues: list[str] = field(default_factory=list)
 
     @property
@@ -85,7 +88,8 @@ def validate(raw: dict) -> Line:
         issues.append("purchase rate is higher than MRP")
     if qty and rate and amount and abs(qty * rate - amount) > max(1.0, 0.01 * amount):
         issues.append(f"qty x rate = {qty * rate:.2f} but amount says {amount:.2f}")
-    return Line(product=product, pack=raw.get("pack"), batch=batch, expiry=exp.isoformat() if exp else None,
+    info = lookup(product) if product else {}
+    return Line(product=product, pack=raw.get("pack"), batch=batch, composition=info.get("composition"), category=info.get("category"), expiry=exp.isoformat() if exp else None,
                 qty=int(qty) if qty else None, free=int(free), mrp=mrp, rate=rate, amount=amount, issues=issues)
 
 

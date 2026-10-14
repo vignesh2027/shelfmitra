@@ -1,4 +1,4 @@
-"""Demo shop: Lakshmi Medicals, with sales histories taken from real pharmacy data.
+"""Demo shop: Lakshmi Medicals (Mylapore, Chennai), with sales histories taken from real pharmacy data.
 
 Each demo product is mapped to the drug category it belongs to in the public
 pharmacy sales dataset, and its daily sales are that category's real sales
@@ -11,6 +11,7 @@ import os
 from datetime import date, timedelta
 
 from . import store
+from .catalog import lookup
 from .scenarios import load_sales
 
 # product, pack, batch, months to expiry, qty on hand, rate, mrp, category, share of category, distributor
@@ -30,18 +31,19 @@ PRODUCTS = [
 ]
 
 
-def seed() -> list[dict]:
-    if os.path.exists(store.DB):
-        os.remove(store.DB)
+def seed(shop: str = "demo") -> list[dict]:
+    path = store.shop_db_path(shop)
+    if os.path.exists(path):
+        os.remove(path)
     sales = load_sales()
     tail = sales.iloc[-120:]          # the last 120 real days, shifted to end today
     today = date.today()
     out = []
-    with store.db() as con:
+    with store.db(shop) as con:
         for name, pack, batch, months, qty, rate, mrp, cat, share, dist in PRODUCTS:
             expiry = (today.replace(day=1) + timedelta(days=32 * months)).replace(day=1) - timedelta(days=1)
             bid = store.add_batch(con, product=name, pack=pack, batch=batch, expiry=expiry.isoformat(), qty=qty,
-                                  rate=rate, mrp=mrp, category=cat, distributor=dist, invoice_no="DEMO",
+                                  rate=rate, mrp=mrp, category=cat, composition=lookup(name).get("composition"), distributor=dist, invoice_no="DEMO",
                                   received=(today - timedelta(days=60)).isoformat(), return_window_days=90)
             for i, units in enumerate(tail[cat].to_numpy()):
                 d = today - timedelta(days=len(tail) - 1 - i)

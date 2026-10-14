@@ -54,10 +54,12 @@ def score(batches: list[dict], histories: dict[str, list[float]], today: date | 
         cutoff = return_cutoff(b["expiry"], b["return_window_days"])
         days = (cutoff - today).days
         hist = np.asarray(histories.get(b["product"], [0.0] * 120), dtype=float)
-        cat = CATEGORIES.index(b["category"]) if b.get("category") in CATEGORIES else 0
+        # Classes outside the reference data are treated as steady sellers (the paracetamol group);
+        # their own sales history still drives the prediction.
+        cat = CATEGORIES.index(b["category"]) if b.get("category") in CATEGORIES else CATEGORIES.index("N02BE")
         f = item_features(hist[-90:], float(b["qty_on_hand"]), max(days, 1), today.month, cat)
         rows.append([f[k] for k in FEATURES])
-        out.append({**b, "return_cutoff": cutoff.isoformat(), "days_to_cutoff": days,
+        out.append({**b, "no_sales": float(hist.sum()) == 0.0, "return_cutoff": cutoff.isoformat(), "days_to_cutoff": days,
                     "vel30": round(f["vel30"], 2), "rule_left_frac": round(f["rule_left_frac"], 3)})
     if not out:
         return out
@@ -79,6 +81,8 @@ def decide(b: dict) -> str:
     """Code, not the model, picks the action from the numbers."""
     if b["days_to_cutoff"] < 0:
         return "window_closed"
+    if b.get("no_sales"):
+        return "need_sales"   # no history yet: say so instead of guessing
     if b["risk"] >= 0.6 and b["days_to_cutoff"] <= 45:
         return "return_now"
     if b["risk"] >= 0.6:
