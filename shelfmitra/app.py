@@ -6,7 +6,10 @@ import re
 import urllib.parse
 from datetime import date
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+import time
+from collections import defaultdict, deque
+
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -20,6 +23,37 @@ SHOP = os.environ.get("SHELFMITRA_SHOP", "Lakshmi Medicals")
 
 app = FastAPI(title="ShelfMitra")
 _temporal = None
+PUBLIC_DEMO = os.environ.get("SHELFMITRA_PUBLIC_DEMO") == "1"
+
+# Per-visitor limits on the endpoints that spend model or API credits on the public demo.
+LIMITS = {"ask": (12, 3600), "invoice": (6, 3600), "message": (12, 3600), "reset": (3, 3600)}
+_hits: dict = defaultdict(deque)
+
+
+def limit(request: Request, kind: str):
+    if not PUBLIC_DEMO:
+        return
+    n, window = LIMITS[kind]
+    ip = (request.headers.get("x-forwarded-for") or request.client.host or "?").split(",")[0].strip()
+    q, now = _hits[(kind, ip)], time.time()
+    while q and now - q[0] > window:
+        q.popleft()
+    if len(q) >= n:
+        raise HTTPException(429, f"Demo limit reached ({n} per hour). Please try again later, or run ShelfMitra locally.")
+    q.append(now)
+
+
+@app.on_event("startup")
+async def seed_if_empty():
+    with store.db() as con:
+        empty = con.execute("SELECT COUNT(*) FROM batches").fetchone()[0] == 0
+    if empty:
+        await demo_reset_impl()
+
+
+@app.get("/api/health")
+def health():
+    return {"ok": True}
 
 
 async def temporal():
@@ -75,7 +109,8 @@ def dashboard():
 
 
 @app.post("/api/invoice")
-async def read_invoice(file: UploadFile = File(...)):
+async def read_invoice(request: Request, file: UploadFile = File(...)):
+    limit(request, "invoice")
     data = await file.read()
     if len(data) > 8_000_000:
         raise HTTPException(413, "Photo too large (max 8 MB)")
@@ -128,7 +163,8 @@ class MessageReq(BaseModel):
 
 
 @app.post("/api/message")
-def message(m: MessageReq):
+def message(m: MessageReq, request: Request):
+    limit(request, "message")
     if m.lang not in messages.LANGS:
         raise HTTPException(400, "lang must be en, ta or hi")
     with store.db() as con:
@@ -186,8 +222,22 @@ async def workflows():
 
 
 @app.post("/api/demo/reset")
-async def demo_reset():
+async def demo_reset(request: Request):
+    limit(request, "reset")
+    return await demo_reset_impl()
+
+
+async def demo_reset_impl():
     from .demo import seed
+    client = await temporal()
+    if client:  # stop the old watches so new batch ids never inherit an old workflow
+        with store.db() as con:
+            old = [r[0] for r in con.execute("SELECT id FROM batches")]
+        for bid in old:
+            try:
+                await client.get_workflow_handle(f"batch-{bid}").terminate("demo reset")
+            except Exception:
+                pass
     batches = seed()
     for b in batches:
         await start_watch(b, (risk.return_cutoff(b["expiry"], b["return_window_days"]) - date.today()).days)
@@ -207,7 +257,8 @@ class Ask(BaseModel):
 
 
 @app.post("/api/ask")
-async def ask(a: Ask):
+async def ask(a: Ask, request: Request):
+    limit(request, "ask")
     q = a.question.strip()[:500]
     if not q:
         raise HTTPException(400, "empty question")

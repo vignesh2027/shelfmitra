@@ -1,0 +1,12 @@
+tabpfn==9.2.0
+scikit-learn
+pandas
+numpy
+fastapi
+uvicorn[standard]
+python-multipart
+temporalio
+httpx
+certifi
+anyio
+huggingface_hub

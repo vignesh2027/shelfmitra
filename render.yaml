@@ -1,0 +1,26 @@
+# One-click deploy: Render Dashboard > New > Blueprint > pick this repo.
+services:
+  - type: web
+    name: shelfmitra
+    runtime: docker
+    plan: standard            # 2 GB RAM: TabPFN-3.5 runs on CPU inside the container
+    region: singapore         # closest Render region to Indian shops
+    healthCheckPath: /api/health
+    autoDeploy: true
+    disk:
+      name: shelfmitra-data   # stock ledger and Temporal history survive deploys and restarts
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: GROQ_API_KEY       # hosted open-weight models (gpt-oss, Qwen) for the public demo
+        sync: false
+      - key: TABPFN_TOKEN       # Prior Labs key with the TabPFN-3.5 license accepted
+        sync: false
+      - key: HF_TOKEN           # Hugging Face token to download the TabPFN-3.5 weights
+        sync: false
+      - key: SHELFMITRA_LLM
+        value: hosted
+      - key: SHELFMITRA_SHOP
+        value: Lakshmi Medicals
+      - key: SHELFMITRA_PUBLIC_DEMO
+        value: "1"
