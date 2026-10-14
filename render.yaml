@@ -22,5 +22,9 @@ services:
         value: hosted
       - key: SHELFMITRA_SHOP
         value: Lakshmi Medicals
+      - key: SHELFMITRA_SECRET
+        generateValue: true
+      - key: SHELFMITRA_DATA_DIR
+        value: /var/data
       - key: SHELFMITRA_PUBLIC_DEMO
         value: "1"

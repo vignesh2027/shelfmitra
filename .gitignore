@@ -8,3 +8,5 @@ data/templates.json
 logs/
 logs_app.txt
 .pytest_cache/
+data/shops/
+data/accounts.db
