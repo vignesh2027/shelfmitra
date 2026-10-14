@@ -6,6 +6,8 @@
 Expiry rescue for Indian medical shops, in Tamil, Hindi and English.</p>
 
 <p align="center">
+<a href="https://shelfmitra.vercel.app"><b>Website</b></a> ·
+<a href="https://shelfmitra.vercel.app/media/shelfmitra-demo.mp4">60 s demo video</a> ·
 <a href="#run-it">Run it</a> ·
 <a href="#how-it-works">How it works</a> ·
 <a href="#does-tabpfn-actually-help">Eval</a> ·
@@ -13,7 +15,7 @@ Expiry rescue for Indian medical shops, in Tamil, Hindi and English.</p>
 <a href="#limits">Limits</a>
 </p>
 
-![ShelfMitra dashboard](docs/screens/01_dashboard.png)
+![ShelfMitra demo](docs/media/shelfmitra-demo.gif)
 
 ## The problem
 
@@ -52,6 +54,10 @@ distributor will still take them.
 
 ## How it works
 
+![How ShelfMitra works](docs/screens/16_architecture.png)
+
+<details><summary>Data flow</summary>
+
 ```mermaid
 flowchart LR
   P[Invoice photo] -->|Qwen vision, open weights| V[Code checks every line]
@@ -66,6 +72,8 @@ flowchart LR
   A --> R
   UI --> M[WhatsApp return request]
 ```
+
+</details>
 
 The rule throughout is **the model reads, code decides**. Models transcribe invoices, write message templates
 and phrase answers. Code validates the numbers, picks the action (return now, stop reordering, watch, fine)
@@ -88,6 +96,8 @@ sales across eight drug classes from one pharmacy. [eval/run_eval.py](eval/run_e
 batches into that history (random quantity, random days to cutoff) and asks: will more than 10% of this batch
 still be on the shelf at the cutoff? Training scenarios come from 2014 to 2017, test scenarios from 2018 to
 2019, five seeds each.
+
+![ROC-AUC by training size](docs/screens/15_eval_chart.png)
 
 | Method | Training batches | ROC-AUC | F1 |
 | --- | ---: | ---: | ---: |
@@ -120,6 +130,11 @@ Checkpoints run, by days left: [60, 30, 14, 7, 2]  (expected [60, 30, 14, 7, 2])
 ```
 
 ![Temporal UI after the crash demo](docs/screens/14_temporal_ui_history.png)
+
+In the running app, every batch has its own watch. This one is a single durable timer sleeping 11 months and
+19 days until the Dolo 650 batch's first checkpoint:
+
+![A BatchWatch sleeping until its first checkpoint](docs/screens/18_temporal_ui_watch.png)
 
 The overdue checkpoint runs as soon as a worker comes back, and the watch carries on to the cutoff. Activities
 retry with backoff forever, so a flaky model or network call delays a reminder instead of dropping it.
