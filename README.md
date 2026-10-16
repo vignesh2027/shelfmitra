@@ -6,6 +6,7 @@
 Expiry rescue for Indian medical shops, in Tamil, Hindi and English.</p>
 
 <p align="center">
+<a href="https://shelfmitra.onrender.com"><b>Live app</b></a> ·
 <a href="https://shelfmitra.vercel.app"><b>Website</b></a> ·
 <a href="https://shelfmitra.vercel.app/media/shelfmitra-demo.mp4">60 s demo video</a> ·
 <a href="#run-it">Run it</a> ·
@@ -156,6 +157,11 @@ To run fully offline with Ollama instead of hosted models, set `SHELFMITRA_LLM=l
 `qwen2.5vl:3b`.
 
 Tests: `.venv/bin/python -m pytest` (Temporal time-skipping tests for the watch, plus account isolation tests).
+
+Live: [shelfmitra.onrender.com](https://shelfmitra.onrender.com) runs on Render's free instance: the web app, the Temporal
+dev server and the worker in one container. TabPFN-3.5 peaks at about 2.3 GB of RAM while scoring, more than the
+free instance's 512 MB, so the public demo runs the straight-line rule and says "Rule only" in the header. The free
+instance sleeps when idle, so the first visit can take about a minute.
 
 Deploy: [render.yaml](render.yaml) is a Render blueprint (Docker, 1 GB disk for the shop databases and Temporal's
 state). Visitors land in a shared demo shop; signing up gives a private, empty shop.
